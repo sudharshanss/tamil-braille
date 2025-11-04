@@ -42,7 +42,7 @@ export function ConversionCard({
       if (mapping.mappingId && !processedMappings.has(mapping.mappingId)) {
         const mappingCells = flatCells.filter(c => c.mappingId === mapping.mappingId);
         if (mappingCells.length > 0) {
-          let wordIndex = wordBoundaries.findIndex(wb => 
+          const wordIndex = wordBoundaries.findIndex(wb => 
             mapping.startIndex >= wb.startIndex && mapping.startIndex <= wb.endIndex
           );
           cellGroups.push({

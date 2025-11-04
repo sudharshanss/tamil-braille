@@ -744,7 +744,7 @@ export default function Home() {
               <span className="text-sm text-muted-foreground">{conversionHistory.length} items</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {conversionHistory.slice(0, 6).map((conversion, idx) => {
+              {conversionHistory.slice(0, 6).map((conversion) => {
                 const brailleText = generateBrailleText(conversion.result);
                 return (
                   <Card key={conversion.id} className="relative p-5 bg-black/60 backdrop-blur-xl border border-white/10 shadow-xl group">

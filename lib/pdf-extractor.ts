@@ -54,8 +54,8 @@ export async function extractTextFromPDF(file: File, pageNumber: number = 1): Pr
     
     // Extract text items
     let fullText = '';
-    textContent.items.forEach((item: any) => {
-      if (item.str) {
+    textContent.items.forEach((item) => {
+      if ('str' in item && item.str) {
         fullText += item.str + ' ';
       }
     });

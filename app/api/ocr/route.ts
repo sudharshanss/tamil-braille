@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     const tempDir = tmpdir();
     const timestamp = Date.now();
     // Respect original file extension if available (helps some decoders)
-    const originalName = (file as any).name as string | undefined;
+    const originalName = file.name as string | undefined;
     const extFromName = originalName && originalName.includes('.') ? originalName.substring(originalName.lastIndexOf('.')) : '.png';
     tempInputFile = join(tempDir, `tesseract_input_${timestamp}${extFromName}`);
     tempOutputFile = join(tempDir, `tesseract_output_${timestamp}`);
@@ -85,9 +85,10 @@ export async function POST(request: NextRequest) {
       });
       stdout = result.stdout;
       stderr = result.stderr;
-    } catch (execError: any) {
+    } catch (execError: unknown) {
       console.error('Tesseract execution error:', execError);
-      throw new Error(`Tesseract OCR failed: ${execError.message || 'Unknown error'}`);
+      const errorMessage = execError instanceof Error ? execError.message : 'Unknown error';
+      throw new Error(`Tesseract OCR failed: ${errorMessage}`);
     }
     
     // Tesseract often outputs warnings to stderr even on success

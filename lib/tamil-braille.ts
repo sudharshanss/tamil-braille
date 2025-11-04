@@ -262,25 +262,6 @@ export interface ConversionResult {
   wordBoundaries?: Array<{ startIndex: number; endIndex: number }>; // Track word boundaries
 }
 
-// Convert a single Braille cell representation to visual dots
-function renderBrailleCell(dots: number[]): string {
-  // Braille cell has 6 positions: 2 columns x 3 rows
-  // Positions: 1(top-left), 2(middle-left), 3(bottom-left), 4(top-right), 5(middle-right), 6(bottom-right)
-  const cell = [false, false, false, false, false, false];
-  dots.forEach(pos => {
-    if (pos >= 1 && pos <= 6) {
-      cell[pos - 1] = true;
-    }
-  });
-  
-  // Convert to visual representation
-  const topRow = `${cell[0] ? '●' : '○'} ${cell[3] ? '●' : '○'}`;
-  const middleRow = `${cell[1] ? '●' : '○'} ${cell[4] ? '●' : '○'}`;
-  const bottomRow = `${cell[2] ? '●' : '○'} ${cell[5] ? '●' : '○'}`;
-  
-  return `${topRow}\n${middleRow}\n${bottomRow}`;
-}
-
 // Convert Tamil text to Braille
 export function convertTamilToBraille(text: string): ConversionResult {
   const mappings: Array<{ tamilChar: string; brailleCells: BrailleCell[]; startIndex: number; endIndex: number; mappingId: string }> = [];

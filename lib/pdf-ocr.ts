@@ -38,11 +38,11 @@ export async function extractTextFromPDFWithOCR(file: File, pageNumber: number =
     canvas.height = viewport.height;
     canvas.width = viewport.width;
     
+    // @ts-expect-error - pdfjs-dist types are incomplete
     await page.render({
       canvasContext: context,
-      viewport: viewport,
-      canvas: canvas
-    } as any).promise;
+      viewport: viewport
+    }).promise;
     
     // Convert canvas to blob
     const blob = await new Promise<Blob>((resolve, reject) => {
@@ -74,9 +74,9 @@ export async function extractTextFromPDFWithOCR(file: File, pageNumber: number =
     const full: string = (data.fullText || data.text || '').toString();
     const text: string = full.replace(/\s+/g, ' ').trim().normalize('NFC');
     return text;
-  } catch (error) {
-    console.error('PDF OCR error:', error);
-    throw error;
+      } catch (error) {
+      console.error('PDF OCR error:', error);
+      throw error;
   }
 }
 

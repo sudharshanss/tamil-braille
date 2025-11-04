@@ -34,6 +34,7 @@ export async function renderPDFPageToImage(file: File, pageNumber: number): Prom
     canvas.height = viewport.height;
     canvas.width = viewport.width;
     
+    // @ts-expect-error - pdfjs-dist types are incomplete
     await page.render({
       canvasContext: context,
       viewport: viewport

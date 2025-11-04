@@ -13,19 +13,18 @@ interface MappedBrailleDisplayProps {
   className?: string;
 }
 
-export function MappedBrailleDisplay({ cells, tamilText, mappings, wordBoundaries, className }: MappedBrailleDisplayProps) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function MappedBrailleDisplay({ cells, tamilText: _tamilText, mappings, wordBoundaries, className }: MappedBrailleDisplayProps) {
   const [hoveredMappingId, setHoveredMappingId] = useState<string | null>(null);
   const [animatedIndices, setAnimatedIndices] = useState<Set<number>>(new Set());
 
   // Flatten cells and group by mapping
   const cellGroups: Array<{ cells: BrailleCellType[]; mapping: typeof mappings[0]; startIdx: number; wordIndex?: number }> = [];
   
-  let globalCellIdx = 0;
   const flatCells: BrailleCellType[] = [];
   cells.forEach(row => {
     row.forEach(cell => {
       flatCells.push(cell);
-      globalCellIdx++;
     });
   });
 
@@ -64,6 +63,7 @@ export function MappedBrailleDisplay({ cells, tamilText, mappings, wordBoundarie
       timeouts.push(timeout);
     });
     return () => timeouts.forEach(clearTimeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cellGroups.length]);
 
   const handleCellHover = (mappingId: string | undefined) => {
