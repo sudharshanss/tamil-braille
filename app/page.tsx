@@ -7,8 +7,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { MappedBrailleDisplay } from "@/components/mapped-braille-display";
 import { ConversionCard } from "@/components/conversion-card";
 import { BrailleCell } from "@/components/braille-cell";
+import { TamilKeyboard } from "@/components/tamil-keyboard";
 import { convertTamilToBraille, ConversionResult } from "@/lib/tamil-braille";
-import { Loader2, Upload, ChevronRight, ChevronLeft, Download, FileUp, X, Volume2, Book, Zap } from "lucide-react";
+import { Loader2, Upload, ChevronRight, ChevronLeft, Download, FileUp, X, Volume2, Book, Zap, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ConversionHistory {
@@ -195,7 +196,7 @@ export default function Home() {
           (cellArr[5] ? 1 : 0) << 5;
         return String.fromCharCode(0x2800 + brailleCode);
       }).join('')
-    ).join(' ');
+    ).join('  ');
   }, []);
 
   const handleDownload = useCallback(() => {
@@ -447,9 +448,13 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-black relative overflow-hidden">
+      {/* Animated gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-950 via-purple-950 via-pink-950 to-red-950 opacity-50"></div>
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+      
       {/* Header */}
-      <header className="border-b border-border bg-background">
+      <header className="relative border-b border-white/10 bg-black/80 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-8 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -469,87 +474,92 @@ export default function Home() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-8 py-12">
         {/* Title Section */}
-        <div className="text-center mb-12 space-y-2">
-          <h2 className="text-5xl font-bold text-foreground">Tamil to Braille</h2>
-          <p className="text-lg text-muted-foreground">Convert Tamil text, images, and PDFs to Braille instantly. Upload documents, navigate pages, and explore character-by-character mappings.</p>
+        <div className="text-center mb-12 space-y-4 relative z-10">
+          <h2 className="text-6xl md:text-7xl font-bold text-white tracking-tight">Tamil to Braille</h2>
+          <p className="text-xl text-white/70 max-w-2xl mx-auto">Convert Tamil text, images, and PDFs to Braille instantly. Upload documents, navigate pages, and explore character-by-character mappings.</p>
         </div>
 
         {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 relative z-10">
           {/* Left Panel - Input */}
-          <Card className="p-6 bg-muted/50">
+          <Card className="p-6 bg-black/60 backdrop-blur-xl border border-white/10 shadow-2xl">
             <h3 className="text-2xl font-bold text-foreground mb-6">Input</h3>
             
             <div className="space-y-6">
               {/* Text Input - Single Line */}
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground transition-colors hover:text-primary">
+                <label className="text-sm font-medium text-white transition-colors hover:text-[#6699FF]">
                   Enter Tamil Text
                 </label>
                 <div className="flex items-center gap-2">
                   <div className="relative flex-1">
-                  <Input
-                    placeholder="Type or paste Tamil text here..."
-                    value={inputText}
-                    onChange={(e) => setInputText(e.target.value)}
-                    onKeyDown={handleKeyPress}
-                    onFocus={() => {
-                      // Close any active PDF preview when user focuses input
-                      if (pdfFile) {
-                        setPdfFile(null);
-                        setCurrentPdfPage(1);
-                        setTotalPdfPages(0);
-                        setShowNextPageButton(false);
-                        setPdfPreview(null);
-                      }
-                      if (imagePreview) {
-                        setImagePreview(null);
-                      }
-                    }}
-                    className="h-10 pr-28 text-sm transition-all duration-200 hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/20"
-                    disabled={isConverting}
-                  />
-                  <div className="absolute inset-y-0 right-2 my-auto flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="h-7 px-2 inline-flex items-center justify-center gap-1 rounded border border-border text-xs font-medium hover:bg-primary/10 active:scale-95 transition-all"
-                      aria-label="Upload file"
-                      title="Upload TXT, PDF, or Image"
-                    >
-                      <FileUp className="h-3.5 w-3.5 text-muted-foreground" />
-                      <span className="text-muted-foreground">Upload</span>
-                    </button>
+                    <Input
+                      placeholder="Type or paste Tamil text here..."
+                      value={inputText}
+                      onChange={(e) => setInputText(e.target.value)}
+                      onKeyDown={handleKeyPress}
+                      onFocus={() => {
+                        // Close any active PDF preview when user focuses input
+                        if (pdfFile) {
+                          setPdfFile(null);
+                          setCurrentPdfPage(1);
+                          setTotalPdfPages(0);
+                          setShowNextPageButton(false);
+                          setPdfPreview(null);
+                        }
+                        if (imagePreview) {
+                          setImagePreview(null);
+                        }
+                      }}
+                      className="h-10 pr-20 text-sm bg-white/5 border-white/20 text-white placeholder:text-white/40 transition-all duration-200 hover:border-[#B366FF]/50 focus:border-[#6699FF] focus:ring-2 focus:ring-[#6699FF]/30"
+                      disabled={isConverting}
+                    />
                     {inputText && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setInputText("");
-                          setTypingText("");
-                          setCurrentResult(null);
-                        }}
-                        className="h-7 w-7 inline-flex items-center justify-center rounded hover:bg-muted/70 active:scale-95 transition-all"
-                        aria-label="Clear input"
-                        title="Clear"
-                      >
-                        <X className="h-4 w-4 text-muted-foreground" />
-                      </button>
+                      <div className="absolute inset-y-0 right-2 my-auto flex items-center">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setInputText("");
+                            setTypingText("");
+                            setCurrentResult(null);
+                            setPdfFile(null);
+                            setCurrentPdfPage(1);
+                            setTotalPdfPages(0);
+                            setShowNextPageButton(false);
+                            setPdfPreview(null);
+                            setImagePreview(null);
+                          }}
+                          className="h-7 w-7 inline-flex items-center justify-center rounded hover:bg-muted/70 active:scale-95 transition-all"
+                          aria-label="Clear input"
+                          title="Clear"
+                        >
+                          <X className="h-4 w-4 text-muted-foreground" />
+                        </button>
+                      </div>
                     )}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".txt,.pdf,image/*"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
                   </div>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept=".txt,.pdf,image/*"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
-                  </div>
+                  <Button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="h-10 px-4 text-sm font-medium inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white hover:bg-[#6699FF]/20 hover:border-[#6699FF]/50 hover:text-[#6699FF] active:scale-[0.98] transition-all duration-200"
+                    title="Upload TXT, PDF, or Image"
+                  >
+                    <FileUp className="h-4 w-4" />
+                    Upload
+                  </Button>
                   <Button
                     type="button"
                     onClick={handleSpeak}
                     disabled={!inputText.trim()}
                     variant="outline"
-                    className="h-10 px-3 text-sm font-medium inline-flex items-center gap-2 hover:bg-primary/5 active:scale-[0.98]"
+                    className="h-10 px-3 text-sm font-medium inline-flex items-center gap-2 bg-white/10 border-white/20 text-white hover:bg-[#B366FF]/20 hover:border-[#B366FF]/50 hover:text-[#B366FF] active:scale-[0.98] transition-all duration-200"
                     title="Read Tamil input"
                   >
                     <Volume2 className="h-4 w-4" />
@@ -567,7 +577,7 @@ export default function Home() {
               <Button
                 onClick={handleConvert}
                 disabled={!inputText.trim() || isConverting}
-                className="w-full h-12 text-base font-semibold bg-foreground text-background hover:bg-foreground/90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg"
+                className="w-full h-12 text-base font-semibold bg-white text-black hover:bg-white/90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg disabled:opacity-50"
               >
                 {isConverting ? (
                   <>
@@ -581,7 +591,7 @@ export default function Home() {
 
               {/* PDF Preview and Navigation */}
               {pdfFile && totalPdfPages > 0 && (
-                <div className="space-y-3 p-4 border border-border rounded-lg bg-background/50">
+                <div className="space-y-3 p-4 border border-white/10 rounded-lg bg-white/5 backdrop-blur-sm">
                   <div className="flex items-center justify-between mb-2">
                     <label className="text-sm font-medium text-foreground">
                       Document Preview
@@ -612,7 +622,7 @@ export default function Home() {
                       onClick={handlePreviousPage}
                       disabled={currentPdfPage <= 1 || isConverting || isLoadingPreview}
                       variant="outline"
-                      className="flex-1 h-10 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:bg-primary/5"
+                      className="flex-1 h-10 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:bg-[#B366FF]/10 hover:border-[#B366FF]/50 border-white/20"
                     >
                       <ChevronLeft className="mr-2 h-4 w-4" />
                       Previous
@@ -621,7 +631,7 @@ export default function Home() {
                       onClick={handleNextPage}
                       disabled={currentPdfPage >= totalPdfPages || isConverting || isLoadingPreview}
                       variant="outline"
-                      className="flex-1 h-10 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:bg-primary/5"
+                      className="flex-1 h-10 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:bg-[#B366FF]/10 hover:border-[#B366FF]/50 border-white/20"
                     >
                       Next
                       <ChevronRight className="ml-2 h-4 w-4" />
@@ -632,7 +642,7 @@ export default function Home() {
 
               {/* Image Preview (for image uploads) */}
               {imagePreview && (
-                <div className="space-y-3 p-4 border border-border rounded-lg bg-background/50">
+                <div className="space-y-3 p-4 border border-white/10 rounded-lg bg-white/5 backdrop-blur-sm">
                   <div className="flex items-center justify-between mb-2">
                     <label className="text-sm font-medium text-foreground">
                       Image Preview
@@ -650,38 +660,17 @@ export default function Home() {
 
               {/* Removed OR separator */}
 
-              {/* Character Mapping under Input */}
-              {currentResult && currentResult.mappings.length > 0 && (
-                <div className="space-y-2">
-                  <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">
-                    CHARACTER MAPPING
-                  </label>
-                  <div className="grid grid-cols-6 gap-2 max-h-[200px] overflow-y-auto p-2">
-                    {currentResult.mappings.slice(0, 24).map((mapping, idx) => (
-                      <Card 
-                        key={mapping.mappingId || idx} 
-                        className="p-2 border border-border bg-background transition-all duration-200 hover:scale-110 hover:border-primary/50 hover:shadow-md cursor-pointer"
-                      >
-                        <div className="flex flex-col items-center gap-2">
-                          <div className="flex gap-1">
-                            {mapping.brailleCells.map((cell, cellIdx) => (
-                              <BrailleCell key={cellIdx} cell={cell} />
-                            ))}
-                          </div>
-                          <div className="text-sm font-medium text-foreground transition-colors hover:text-primary">
-                            {mapping.tamilChar}
-                          </div>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                </div>
-              )}
+              {/* Tamil Virtual Keyboard */}
+              <TamilKeyboard
+                onCharClick={(char) => {
+                  setInputText((prev) => prev + char);
+                }}
+              />
             </div>
           </Card>
 
           {/* Right Panel - Output */}
-          <Card className="p-6 bg-muted/50">
+          <Card className="p-6 bg-black/60 backdrop-blur-xl border border-white/10 shadow-2xl">
             <div className="space-y-6">
               {/* Tamil Input Display */}
               {currentResult && (
@@ -689,7 +678,7 @@ export default function Home() {
                   <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">
                     TAMIL INPUT
                   </label>
-                  <div className="p-4 border border-border rounded-lg bg-background min-h-[60px]">
+                  <div className="p-4 border border-white/10 rounded-lg bg-white/5 backdrop-blur-sm min-h-[60px]">
                     <p className="text-base text-foreground">{currentResult.tamilText}</p>
                   </div>
                 </div>
@@ -706,7 +695,7 @@ export default function Home() {
                       onClick={handleDownload}
                       variant="ghost"
                       size="sm"
-                      className="h-8 transition-all duration-200 hover:scale-110 hover:bg-primary/10"
+                      className="h-8 transition-all duration-200 hover:scale-110 hover:bg-[#6699FF]/20 hover:text-[#6699FF]"
                       title="Download result"
                     >
                       <Download className="h-4 w-4" />
@@ -720,15 +709,7 @@ export default function Home() {
                       <p className="text-muted-foreground animate-pulse text-lg">Generating Braille...</p>
                     </div>
                   ) : currentResult ? (
-                    <div className="w-full p-4 border border-border rounded-lg bg-background min-h-[400px] transition-all duration-200 hover:border-primary/50">
-                      {imagePreview && (
-                        <div className="mb-4">
-                          <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">IMAGE PREVIEW</label>
-                          <div className="mt-2 w-full max-h-64 overflow-hidden rounded border border-border bg-muted/30 flex items-center justify-center">
-                            <img src={imagePreview} alt="Uploaded image" className="max-h-64 object-contain" />
-                          </div>
-                        </div>
-                      )}
+                    <div className="w-full p-4 border border-white/10 rounded-lg bg-white/5 backdrop-blur-sm min-h-[400px] transition-all duration-200 hover:border-[#B366FF]/30 hover:shadow-[#B366FF]/20">
                       <MappedBrailleDisplay
                         cells={currentResult.brailleCells}
                         tamilText={currentResult.tamilText}
@@ -766,13 +747,30 @@ export default function Home() {
               {conversionHistory.slice(0, 6).map((conversion, idx) => {
                 const brailleText = generateBrailleText(conversion.result);
                 return (
-                  <Card key={conversion.id} className="p-5 bg-card/50 border-border">
+                  <Card key={conversion.id} className="relative p-5 bg-black/60 backdrop-blur-xl border border-white/10 shadow-xl group">
                     <div className="space-y-3">
-                      <div className="text-lg font-semibold text-foreground">{conversion.tamilText}</div>
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="text-lg font-semibold text-foreground flex-1">{conversion.tamilText}</div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-[#6699FF]/20 hover:text-[#6699FF]"
+                          onClick={() => {
+                            setInputText(conversion.tamilText);
+                            // Trigger conversion after setting input
+                            setTimeout(() => {
+                              handleConvert();
+                            }, 100);
+                          }}
+                          title="Retry conversion"
+                        >
+                          <RotateCcw className="h-4 w-4" />
+                        </Button>
+                      </div>
                       <div className="text-sm text-muted-foreground">
                         {new Date(conversion.timestamp).toLocaleString()}
                       </div>
-                      <div className="rounded-md border border-border bg-background text-base px-3 py-2 overflow-x-auto whitespace-pre-wrap">
+                      <div className="rounded-md border border-white/10 bg-white/5 backdrop-blur-sm text-base px-3 py-2 overflow-x-auto whitespace-pre-wrap">
                         {brailleText}
                       </div>
                     </div>

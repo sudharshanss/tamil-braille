@@ -23,8 +23,8 @@ export function BrailleCell({ cell, highlighted = false, className }: BrailleCel
     <div
       className={cn(
         "inline-flex items-center justify-center mx-0.5 relative transition-all duration-300 ease-in-out cursor-pointer group",
-        highlighted && "bg-blue-100 dark:bg-blue-900/30 rounded-lg p-1 scale-110 shadow-lg z-10",
-        !highlighted && "hover:bg-muted/50 hover:scale-105",
+        highlighted && "bg-[#6699FF]/20 rounded-lg p-1 scale-110 shadow-lg z-10 border border-[#6699FF]/50 shadow-[#6699FF]/30",
+        !highlighted && "hover:bg-[#B366FF]/10 hover:scale-105 hover:border-[#B366FF]/30",
         className
       )}
       aria-label={`Braille cell for ${cell.tamilChar}`}
@@ -32,8 +32,8 @@ export function BrailleCell({ cell, highlighted = false, className }: BrailleCel
       <div className={cn(
         "grid grid-cols-2 grid-rows-3 gap-0.5 w-8 h-11 p-1.5 border-2 rounded-md transition-all duration-300",
         highlighted 
-          ? "border-blue-500 shadow-md gap-1" 
-          : "border-border group-hover:border-primary/50"
+          ? "border-[#6699FF] shadow-md gap-1 shadow-[#6699FF]/40" 
+          : "border-white/20 group-hover:border-[#B366FF]/50"
       )}>
         {/* Top row */}
         <div className="flex items-center justify-center">

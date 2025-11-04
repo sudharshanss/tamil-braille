@@ -115,7 +115,7 @@ export function MappedBrailleDisplay({ cells, tamilText, mappings, wordBoundarie
               <p className="animate-pulse">No Braille output yet</p>
             </div>
           ) : (
-            <div className="flex flex-wrap items-end gap-x-6 gap-y-4 justify-start">
+            <div className="flex flex-wrap items-end gap-x-12 gap-y-6 justify-start">
               {wordGroups.map((word, wIdx) => (
                 <div key={`word-${wIdx}`} className="inline-flex flex-nowrap items-end gap-4 whitespace-nowrap">
                   {word.groups.map((group, groupIdx) => {
@@ -162,8 +162,8 @@ export function MappedBrailleDisplay({ cells, tamilText, mappings, wordBoundarie
                             className={cn(
                               "text-lg font-medium transition-all duration-300 px-2 py-1 rounded cursor-pointer",
                               isHighlighted 
-                                ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 scale-110 shadow-md" 
-                                : "text-foreground hover:text-primary"
+                                ? "bg-[#6699FF]/20 text-[#6699FF] scale-110 shadow-md border border-[#6699FF]/50 shadow-[#6699FF]/30" 
+                                : "text-white hover:text-[#B366FF] hover:bg-[#B366FF]/10"
                             )}
                             onMouseEnter={() => group.mapping.mappingId && handleTamilHover(group.mapping.mappingId)}
                           >

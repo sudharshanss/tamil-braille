@@ -136,7 +136,7 @@ export function ConversionCard({
     
     return words.map(word => 
       word.map(cell => cellToBraille(cell)).join('')
-    ).join(' ');
+    ).join('  ');
   };
 
   const handleCopy = () => {
@@ -164,7 +164,7 @@ export function ConversionCard({
 
   return (
     <Card
-      className="relative transition-all duration-300 hover:shadow-xl hover:scale-105 border-2 hover:border-primary/50"
+      className="relative transition-all duration-300 hover:shadow-xl hover:scale-105 border-2 hover:border-[#6699FF]/50 hover:shadow-[#6699FF]/20"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
