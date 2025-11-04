@@ -8,7 +8,7 @@ export async function extractTextFromPDFWithOCR(file: File, pageNumber: number =
   try {
     // For image-based PDFs, we need to:
     // 1. Convert PDF page to image (client-side)
-    // 2. Send to OCR API (server-side)
+    // 2. Send to OCR API (server-side) or use client-side OCR
     
     // Dynamic import to avoid SSR issues
     const pdfjsLib = await import('pdfjs-dist');
@@ -55,28 +55,59 @@ export async function extractTextFromPDFWithOCR(file: File, pageNumber: number =
       }, 'image/png');
     });
     
-    // Send to OCR API
-    const formData = new FormData();
-    formData.append('file', blob, 'page.png');
-    
-    const response = await fetch('/api/ocr', {
-      method: 'POST',
-      body: formData
-    });
-    
-    if (!response.ok) {
-      const error = await response.json();
+    // Try server-side OCR first
+    try {
+      const formData = new FormData();
+      formData.append('file', blob, 'page.png');
+      
+      const response = await fetch('/api/ocr', {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const full: string = (data.fullText || data.text || '').toString();
+        const text: string = full.replace(/\s+/g, ' ').trim().normalize('NFC');
+        return text;
+      }
+
+      // Check if it's a "not available" error
+      const error = await response.json().catch(() => ({}));
+      if (error.error && (error.error.includes('not available') || error.error.includes('Tesseract'))) {
+        console.warn('Server-side OCR not available, using client-side OCR...');
+        return await extractTextFromImageWithClientOCR(blob);
+      }
+
       throw new Error(error.error || 'OCR failed');
+    } catch (fetchError) {
+      // Fallback to client-side OCR
+      console.warn('Server-side OCR failed, using client-side OCR...', fetchError);
+      return await extractTextFromImageWithClientOCR(blob);
     }
+  } catch (error) {
+    console.error('PDF OCR error:', error);
+    throw error;
+  }
+}
+
+// Client-side OCR for images using Tesseract.js
+async function extractTextFromImageWithClientOCR(blob: Blob): Promise<string> {
+  try {
+    const Tesseract = (await import('tesseract.js')).default;
     
-    const data = await response.json();
-    // Prefer full text from OCR for full-page extraction
-    const full: string = (data.fullText || data.text || '').toString();
-    const text: string = full.replace(/\s+/g, ' ').trim().normalize('NFC');
-    return text;
-      } catch (error) {
-      console.error('PDF OCR error:', error);
-      throw error;
+    const { data: { text } } = await Tesseract.recognize(blob, 'tam+eng', {
+      logger: (m) => {
+        if (m.status === 'recognizing text') {
+          console.log(`OCR Progress: ${Math.round(m.progress * 100)}%`);
+        }
+      }
+    });
+
+    const normalized = text.replace(/\s+/g, ' ').trim().normalize('NFC');
+    return normalized;
+  } catch (error) {
+    throw new Error(`Client-side OCR failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
