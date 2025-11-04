@@ -84,7 +84,6 @@ export async function POST(request: NextRequest) {
     // Execute Python script with stdin input and timeout
     const pythonProcess = spawn(pythonCmd, [scriptPath], {
       stdio: ['pipe', 'pipe', 'pipe'],
-      encoding: 'utf8',
     });
 
     let stdout = '';
