@@ -34,7 +34,7 @@ export async function extractTextFromImageWithOCR(file: File): Promise<string> {
     console.warn('Server-side OCR failed, trying client-side OCR...', error);
     try {
       return await extractTextWithClientOCR(file);
-    } catch (clientError) {
+    } catch {
       throw new Error(`OCR failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }

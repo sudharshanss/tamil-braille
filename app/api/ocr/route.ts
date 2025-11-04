@@ -212,8 +212,9 @@ export async function POST(request: NextRequest) {
         error: `Failed to process OCR: ${errorMessage}`,
         details: process.env.NODE_ENV === 'development' ? {
           message: errorMessage,
-          tesseractPath: TESSERACT_PATH,
-          tessdataPath: TESSDATA_PATH,
+          // Using LOCAL_TESSERACT_PATH and LOCAL_TESSDATA_PATH constants
+          tesseractPath: LOCAL_TESSERACT_PATH,
+          tessdataPath: LOCAL_TESSDATA_PATH,
           stack: error instanceof Error ? error.stack : undefined
         } : undefined
       },

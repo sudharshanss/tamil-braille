@@ -5,12 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { MappedBrailleDisplay } from "@/components/mapped-braille-display";
-import { ConversionCard } from "@/components/conversion-card";
-import { BrailleCell } from "@/components/braille-cell";
 import { TamilKeyboard } from "@/components/tamil-keyboard";
 import { convertTamilToBraille, ConversionResult } from "@/lib/tamil-braille";
-import { Loader2, Upload, ChevronRight, ChevronLeft, Download, FileUp, X, Volume2, Book, Zap, RotateCcw } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Loader2, ChevronRight, ChevronLeft, Download, FileUp, X, Volume2, Book, Zap, RotateCcw } from "lucide-react";
 
 interface ConversionHistory {
   id: string;

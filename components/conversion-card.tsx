@@ -29,7 +29,6 @@ export function ConversionCard({
   onLike,
   liked = false 
 }: ConversionCardProps) {
-  const [isHovered, setIsHovered] = useState(false);
   const [isLiked, setIsLiked] = useState(liked);
 
   // Group cells by mappings to identify word boundaries
@@ -163,11 +162,7 @@ export function ConversionCard({
   };
 
   return (
-    <Card
-      className="relative transition-all duration-300 hover:shadow-xl hover:scale-105 border-2 hover:border-[#6699FF]/50 hover:shadow-[#6699FF]/20"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+    <Card className="relative transition-all duration-300 hover:shadow-xl hover:scale-105 border-2 hover:border-[#6699FF]/50 hover:shadow-[#6699FF]/20">
       <CardContent className="p-4">
         <div className="space-y-3">
           {/* Tamil Text */}
@@ -194,13 +189,8 @@ export function ConversionCard({
           </div>
         </div>
 
-        {/* Action Buttons - Show on Hover */}
-        <div
-          className={cn(
-            "absolute bottom-2 right-2 flex gap-2 transition-opacity duration-200",
-            isHovered ? "opacity-100" : "opacity-0"
-          )}
-        >
+        {/* Action Buttons */}
+        <div className="absolute bottom-2 right-2 flex gap-2">
           <Button
             variant="ghost"
             size="icon"

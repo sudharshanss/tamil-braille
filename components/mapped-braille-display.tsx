@@ -19,7 +19,7 @@ export function MappedBrailleDisplay({ cells, tamilText: _tamilText, mappings, w
   const [animatedIndices, setAnimatedIndices] = useState<Set<number>>(new Set());
 
   // Flatten cells and group by mapping
-  const cellGroups: Array<{ cells: BrailleCellType[]; mapping: typeof mappings[0]; startIdx: number; wordIndex?: number }> = [];
+  const cellGroups: Array<{ cells: BrailleCellType[]; mapping: typeof mappings[0]; wordIndex?: number }> = [];
   
   const flatCells: BrailleCellType[] = [];
   cells.forEach(row => {
@@ -45,7 +45,6 @@ export function MappedBrailleDisplay({ cells, tamilText: _tamilText, mappings, w
         cellGroups.push({
           cells: mappingCells,
           mapping,
-          startIdx: cellGroups.length,
           wordIndex: wordIndex >= 0 ? wordIndex : undefined
         });
         processedMappings.add(mapping.mappingId);
