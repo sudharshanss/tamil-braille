@@ -755,12 +755,17 @@ export default function Home() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-[#6699FF]/20 hover:text-[#6699FF]"
-                          onClick={() => {
+                          onClick={async () => {
                             setInputText(conversion.tamilText);
-                            // Trigger conversion after setting input
-                            setTimeout(() => {
-                              handleConvert();
-                            }, 100);
+                            // Wait for state to update, then trigger conversion
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                            if (conversion.tamilText.trim()) {
+                              setIsConverting(true);
+                              await new Promise(resolve => setTimeout(resolve, 200));
+                              const result = convertTamilToBraille(conversion.tamilText.trim());
+                              setCurrentResult(result);
+                              setIsConverting(false);
+                            }
                           }}
                           title="Retry conversion"
                         >
