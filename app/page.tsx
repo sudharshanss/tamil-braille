@@ -7,7 +7,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { MappedBrailleDisplay } from "@/components/mapped-braille-display";
 import { TamilKeyboard } from "@/components/tamil-keyboard";
 import { convertTamilToBraille, ConversionResult } from "@/lib/tamil-braille";
-import { Loader2, ChevronRight, ChevronLeft, Download, FileUp, X, Volume2, Book, Zap, RotateCcw } from "lucide-react";
+import { Loader2, ChevronRight, ChevronLeft, Download, FileUp, X, Volume2, Book, Zap, RotateCcw, ChevronDown } from "lucide-react";
+import { unicodeToBrf, downloadTextFile } from "@/lib/unicode-to-brf";
 
 interface ConversionHistory {
   id: string;
@@ -36,7 +37,9 @@ export default function Home() {
   const [typingText, setTypingText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [showDownloadMenu, setShowDownloadMenu] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const downloadMenuRef = useRef<HTMLDivElement | null>(null);
 
   // Typing animation effect
   useEffect(() => {
@@ -72,6 +75,20 @@ export default function Home() {
       } catch {}
     };
   }, []);
+
+  // Close download menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (downloadMenuRef.current && !downloadMenuRef.current.contains(event.target as Node)) {
+        setShowDownloadMenu(false);
+      }
+    };
+
+    if (showDownloadMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showDownloadMenu]);
 
   const handleSpeak = useCallback(() => {
     if (!inputText.trim()) return;
@@ -196,21 +213,23 @@ export default function Home() {
     ).join('  ');
   }, []);
 
-  const handleDownload = useCallback(() => {
+  const handleDownload = useCallback(async (format: 'txt' | 'brf') => {
     if (!currentResult) return;
     
     const brailleText = generateBrailleText(currentResult);
     const formattedTamilText = currentResult.tamilText;
+    const baseFilename = `braille-${formattedTamilText.slice(0, 10).replace(/\s/g, '_')}`;
     
-    const blob = new Blob([`Tamil Text:\n${formattedTamilText}\n\nBraille Output:\n${brailleText}`], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `braille-${formattedTamilText.slice(0, 10).replace(/\s/g, '_')}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    if (format === 'brf') {
+      // Download as BRF file (ASCII Braille encoding) - only Braille content
+      // Uses Python API with TypeScript fallback
+      const brfContent = await unicodeToBrf(brailleText);
+      downloadTextFile(brfContent, `${baseFilename}.brf`, 'text/plain');
+    } else {
+      // Download as TXT file (Unicode Braille) - includes Tamil text and Braille
+      const txtContent = `Tamil Text:\n${formattedTamilText}\n\nBraille Output:\n${brailleText}`;
+      downloadTextFile(txtContent, `${baseFilename}.txt`, 'text/plain');
+    }
   }, [currentResult, generateBrailleText]);
 
   // Load PDF preview
@@ -688,15 +707,42 @@ export default function Home() {
                     CONVERTED
                   </label>
                   {currentResult && (
-                    <Button
-                      onClick={handleDownload}
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 transition-all duration-200 hover:scale-110 hover:bg-[#6699FF]/20 hover:text-[#6699FF]"
-                      title="Download result"
-                    >
-                      <Download className="h-4 w-4" />
-                    </Button>
+                    <div className="relative" ref={downloadMenuRef}>
+                      <Button
+                        onClick={() => setShowDownloadMenu(!showDownloadMenu)}
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 transition-all duration-200 hover:scale-110 hover:bg-[#6699FF]/20 hover:text-[#6699FF] flex items-center gap-1"
+                        title="Download result"
+                      >
+                        <Download className="h-4 w-4" />
+                        <ChevronDown className="h-3 w-3" />
+                      </Button>
+                      {showDownloadMenu && (
+                        <div className="absolute right-0 mt-2 w-40 bg-black/90 backdrop-blur-xl border border-white/10 rounded-lg shadow-xl z-50 overflow-hidden">
+                          <button
+                            onClick={() => {
+                              handleDownload('txt');
+                              setShowDownloadMenu(false);
+                            }}
+                            className="w-full px-4 py-2 text-left text-sm hover:bg-[#6699FF]/20 transition-colors flex items-center gap-2"
+                          >
+                            <Download className="h-3 w-3" />
+                            Download as TXT
+                          </button>
+                          <button
+                            onClick={() => {
+                              handleDownload('brf');
+                              setShowDownloadMenu(false);
+                            }}
+                            className="w-full px-4 py-2 text-left text-sm hover:bg-[#6699FF]/20 transition-colors flex items-center gap-2 border-t border-white/10"
+                          >
+                            <Download className="h-3 w-3" />
+                            Download as BRF
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
                 <div className="min-h-[400px] flex items-center justify-center">

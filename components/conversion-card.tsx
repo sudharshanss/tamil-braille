@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Card, CardContent } from "./ui/card";
 import { BrailleCell } from "./braille-cell";
 import { BrailleCell as BrailleCellType } from "@/lib/tamil-braille";
 import { Copy, Download, Heart } from "lucide-react";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
+import { unicodeToBrf, downloadTextFile } from "@/lib/unicode-to-brf";
 
 interface ConversionCardProps {
   tamilText: string;
@@ -30,6 +31,22 @@ export function ConversionCard({
   liked = false 
 }: ConversionCardProps) {
   const [isLiked, setIsLiked] = useState(liked);
+  const [showDownloadMenu, setShowDownloadMenu] = useState(false);
+  const downloadMenuRef = useRef<HTMLDivElement | null>(null);
+
+  // Close download menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (downloadMenuRef.current && !downloadMenuRef.current.contains(event.target as Node)) {
+        setShowDownloadMenu(false);
+      }
+    };
+
+    if (showDownloadMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showDownloadMenu]);
 
   // Group cells by mappings to identify word boundaries
   const flatCells = brailleCells.flat();
@@ -144,20 +161,22 @@ export function ConversionCard({
     onCopy?.();
   };
 
-  const handleDownload = () => {
+  const handleDownload = async (format: 'txt' | 'brf') => {
     const brailleText = generateBrailleText();
     // Preserve original Tamil text with spaces
     const formattedTamilText = tamilText; // Already has spaces preserved
+    const baseFilename = `braille-${tamilText.slice(0, 10).replace(/\s/g, '_')}`;
     
-    const blob = new Blob([`Tamil Text:\n${formattedTamilText}\n\nBraille Output:\n${brailleText}`], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `braille-${tamilText.slice(0, 10).replace(/\s/g, '_')}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    if (format === 'brf') {
+      // Download as BRF file (ASCII Braille encoding) - only Braille content
+      // Uses Python API with TypeScript fallback
+      const brfContent = await unicodeToBrf(brailleText);
+      downloadTextFile(brfContent, `${baseFilename}.brf`, 'text/plain');
+    } else {
+      // Download as TXT file (Unicode Braille) - includes Tamil text and Braille
+      const txtContent = `Tamil Text:\n${formattedTamilText}\n\nBraille Output:\n${brailleText}`;
+      downloadTextFile(txtContent, `${baseFilename}.txt`, 'text/plain');
+    }
     onDownload?.();
   };
 
@@ -200,15 +219,41 @@ export function ConversionCard({
           >
             <Copy className="h-4 w-4" />
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            onClick={handleDownload}
-            title="Download"
-          >
-            <Download className="h-4 w-4" />
-          </Button>
+          <div className="relative" ref={downloadMenuRef}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setShowDownloadMenu(!showDownloadMenu)}
+              title="Download"
+            >
+              <Download className="h-4 w-4" />
+            </Button>
+            {showDownloadMenu && (
+              <div className="absolute bottom-full right-0 mb-2 w-40 bg-black/90 backdrop-blur-xl border border-white/10 rounded-lg shadow-xl z-50 overflow-hidden">
+                <button
+                  onClick={() => {
+                    handleDownload('txt');
+                    setShowDownloadMenu(false);
+                  }}
+                  className="w-full px-4 py-2 text-left text-sm hover:bg-[#6699FF]/20 transition-colors flex items-center gap-2"
+                >
+                  <Download className="h-3 w-3" />
+                  Download as TXT
+                </button>
+                <button
+                  onClick={() => {
+                    handleDownload('brf');
+                    setShowDownloadMenu(false);
+                  }}
+                  className="w-full px-4 py-2 text-left text-sm hover:bg-[#6699FF]/20 transition-colors flex items-center gap-2 border-t border-white/10"
+                >
+                  <Download className="h-3 w-3" />
+                  Download as BRF
+                </button>
+              </div>
+            )}
+          </div>
           <Button
             variant="ghost"
             size="icon"
